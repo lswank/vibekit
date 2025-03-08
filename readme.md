@@ -4,7 +4,6 @@ A dynamic, intent-driven Python library that interprets and executes functions b
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://img.shields.io/pypi/v/vibekit.svg)](https://pypi.org/project/vibekit/)
-[![Python Versions](https://img.shields.io/pypi/pyversions/vibekit.svg)](https://pypi.org/project/vibekit/)
 
 ## 📋 Overview
 
