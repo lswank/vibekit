@@ -127,9 +127,72 @@ VibeKit's core philosophy allows you to call any function by name. The library i
 
 Under the hood, VibeKit translates your function call into a natural language description and uses GPT-4o or Claude to interpret and execute it.
 
+## 🚀 Advanced Examples
+
+### The Ridiculous Frontier: Orbital Mechanics Calculator
+
+Want to see how far VibeKit can go? Here's an example that demonstrates the absurd power of dynamic function generation - generating an entire web application for orbital mechanics calculations with just a few lines of code.
+
+In this example, VibeKit handles both the complex math of Hohmann transfer orbits AND generates a complete styled web interface on the fly:
+
+<img src="assets/images/hohmann_transfer_01.png" alt="Hohmann Transfer Diagram" width="500"/>
+
+```python
+# Generate a complete HTML page with Hohmann transfer calculation results
+response = await client.generate_hohmann_transfer_results_page_html(
+    style="Make it look like the Apple homepage",
+    initial_orbit_radius=initial_orbit_radius,
+    final_orbit_radius=final_orbit_radius,
+    gravitational_parameter=gravitational_parameter,
+    include_visualization=True,
+    visualization_style="ASCII ART STYLE",
+    back_link_url="/"
+)
+```
+
+This function doesn't actually exist in the codebase - VibeKit interprets this request dynamically, using AI to:
+1. Understand what a Hohmann transfer is
+2. Perform the complex orbital mechanics calculations
+3. Generate a complete, styled HTML page with results
+4. Create visualizations of the transfer orbit
+
+No HTML, CSS, JavaScript, or orbital mechanics knowledge required!
+
+<img src="assets/images/hohmann_transfer_02.png" alt="Hohmann Transfer Velocity Changes" width="500"/>
+
+### The Complete Flask Example
+
+Here's how the entire Flask route is implemented:
+
+```python
+@app.route('/calculate', methods=['POST'])
+def calculate():
+    """Handle form submission and return results."""
+    # Get form data
+    initial_orbit_radius = float(request.form.get('initial_orbit_radius', 6778))
+    final_orbit_radius = float(request.form.get('final_orbit_radius', 42164))
+    gravitational_parameter = float(request.form.get('gravitational_parameter', 398600))
+    
+    # Let VibeKit handle both the calculation and result display
+    async def get_results():
+        response = await client.generate_hohmann_transfer_results_page_html(
+            style="Make it look like the Apple homepage",
+            initial_orbit_radius=initial_orbit_radius,
+            final_orbit_radius=final_orbit_radius,
+            gravitational_parameter=gravitational_parameter,
+            include_visualization=True,
+            visualization_style="ASCII ART STYLE",
+            back_link_url="/"
+        )
+        return response["html"] if isinstance(response, dict) and "html" in response else response
+    
+    result = loop.run_until_complete(get_results())
+    return result
+```
+
 ## What the Hell?
 
-Is this satire? I mean... kind of. It's obviously horribly inefficient. At the same time, if you're trying to prototype something and you'd rather outsource one part of it during the process, it's not actually a horrible idea.
+Is this satire? Yes, kind of. It's obviously horribly inefficient and not how you'd build a production system. At the same time, if you're prototyping something quickly and want to outsource one part of the development process temporarily, it's not actually a horrible idea.
 
 ## 🤝 Contributing
 

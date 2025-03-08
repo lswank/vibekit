@@ -180,3 +180,6 @@ secrets.json
 # Log files
 logs/
 *.log 
+
+# 
+build_env/

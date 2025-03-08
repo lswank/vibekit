@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
 authors = [
-    {name = "VibeKit Team"}
+    {name = "Lorenzo Swank", email = "Lorenzo@LorenzoSwank.com"},
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -38,9 +38,8 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/vibekit/vibekit"
-Documentation = "https://vibekit.readthedocs.io"
-Issues = "https://github.com/vibekit/vibekit/issues"
+Homepage = "https://github.com/lswank/vibekit"
+Issues = "https://github.com/lswank/vibekit/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["vibekit"]
