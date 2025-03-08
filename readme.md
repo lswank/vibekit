@@ -14,11 +14,10 @@ VibeKit uses Large Language Models (OpenAI or Anthropic) behind the scenes to un
 ## ✨ Key Features
 
 - **Dynamic Function Interpretation** - Call any function you can imagine, and VibeKit will interpret your intent
-- **Asynchronous Support** - Built with full support for `async`/`await` for non-blocking operations
-- **Intuitive API** - Natural programming interface that adapts to your thinking process
-- **LLM Integration** - Seamless integration with OpenAI (GPT-4) and Anthropic (Claude) models
-- **Zero Configuration** - Get started with minimal setup
-- **Extensible Architecture** - Easily add custom functionality to meet your specific needs
+- **Asynchronous Support** - It basically only works with `async`/`await` so async by default!
+- **Intuitive API** - Natural programming interface that adapts to your thinking process (or lack thereof)
+- **LLM Integration** - It's really the whole thing that powers it
+- **Zero Configuration** - Get started with minimal setup -- add an API key and go
 
 ## 🚀 Installation
 
@@ -38,19 +37,24 @@ Initialize the client, connect to the service, and start using dynamic functions
 from vibekit import VibeKitClient
 
 # Initialize with your API key (OpenAI or Anthropic)
-client = VibeKitClient(
+vibe = VibeKitClient(
     api_key="your_api_key",  # Required: OpenAI or Anthropic API key
 )
 
 # Connect to the service
-await client.connect()
+await vibe.connect()
 
 # Use any function name that expresses your intent
-sum_result = await client.calculate_sum(5, 10)
+# Parameter names are optional - VibeKit can infer intent from values alone!
+sum_result = await vibe.calculate_sum(5, 10)
+# Or simply:
+# sum_result = await vibe.calculate_sum(5, 10)
 print(sum_result)  # Output: 15
 
 # VibeKit interprets your intent from function names and parameters
-weather = await client.get_weather_for("New York")
+weather = await vibe.get_weather_for(city="New York")
+# Or simply:
+# weather = await vibe.get_weather_for("New York")
 print(weather)  # Output: Weather data for New York
 ```
 
@@ -59,36 +63,29 @@ print(weather)  # Output: Weather data for New York
 ### Mathematical Operations
 
 ```python
-# Addition
-sum_result = await client.add(5, 3)
+# Addition (with named parameters)
+sum_result = await vibe.add(5, 3)
 # or
-sum_result = await client.calculate_sum(5, 3)
+sum_result = await vibe.calculate_sum(5, 3)
 
-# Complex calculations
-result = await client.calculate_compound_interest(1000, 0.05, 5)
+# Complex calculations (with named parameters)
+result = await vibe.calculate_compound_interest(principal=1000, rate=0.05, years=5)
+
+# Remember: Parameter names are optional and it's fun to let VibeKit guess!
+# These would work just as well, with YMMV on results:
+# result = await vibe.calculate_compound_interest(1000, 0.05, 5)
 ```
 
 ### Data Processing
 
 ```python
-# Filter a list
-filtered_data = await client.filter_by_property(users, "age", "> 30")
+# Filter a list (with named parameters)
+filtered_data = await vibe.filter_by_property(data=users, property="age", condition="> 30")
 
-# Sort collection
-sorted_items = await client.sort_by_price(products, "ascending")
-```
+# Sort collection (with named parameters)
+sorted_items = await vibe.sort_by_price(items=products, order="ascending")
 
-### API Interactions
-
-```python
-# Fetch data
-user_data = await client.fetch_user_profile("user123")
-
-# Send data
-response = await client.submit_form({
-    "name": "John Doe",
-    "email": "john@example.com",
-})
+# Parameter names help with clarity but are completely optional
 ```
 
 ## 🛠️ Advanced Configuration
@@ -102,7 +99,7 @@ client = VibeKitClient(
 )
 
 # You can also update configuration after initialization
-client.set_config({
+vibe.set_config({
     "timeout": 10.0,
     "retries": 5
 })
@@ -112,20 +109,17 @@ client.set_config({
 
 ### Core Methods
 
-- `client.connect()` - Initializes the library and establishes connections to the LLM service
-- `client.disconnect()` - Cleans up resources
-- `client.set_config(options)` - Updates client configuration
-- `client.get_status()` - Returns the current connection status and provider information
+- `vibe.connect()` - Initializes the library and establishes connections to the LLM service
+- `vibe.disconnect()` - Cleans up resources
+- `vibe.set_config(options)` - Updates client configuration
+- `vibe.get_status()` - Returns the current connection status and provider information
 
 ### Dynamic Functions
 
-VibeKit's core philosophy allows you to call any function by name. The library interprets your intent based on:
+VibeKit's core philosophy allows you to call any function by name. The library gets your intent interpreted based on:
 
 - The function name (e.g., `calculate_tax`, `fetch_user_data`)
-- The parameters provided
-- The context of your application
-
-Under the hood, VibeKit translates your function call into a natural language description and uses GPT-4o or Claude to interpret and execute it.
+- The parameters provided (e.g., `tiny_bipedal_deductions`, `number_of_mortgages`)
 
 ## 🚀 Advanced Examples
 
@@ -139,7 +133,7 @@ In this example, VibeKit handles both the complex math of Hohmann transfer orbit
 
 ```python
 # Generate a complete HTML page with Hohmann transfer calculation results
-response = await client.generate_hohmann_transfer_results_page_html(
+response = await vibe.generate_hohmann_transfer_results_page_html(
     style="Make it look like the Apple homepage",
     initial_orbit_radius=initial_orbit_radius,
     final_orbit_radius=final_orbit_radius,
@@ -148,6 +142,8 @@ response = await client.generate_hohmann_transfer_results_page_html(
     visualization_style="ASCII ART STYLE",
     back_link_url="/"
 )
+
+# Parameter names improve readability, but VibeKit would understand even without them!
 ```
 
 This function doesn't actually exist in the codebase - VibeKit interprets this request dynamically, using AI to:
@@ -175,7 +171,7 @@ def calculate():
     
     # Let VibeKit handle both the calculation and result display
     async def get_results():
-        response = await client.generate_hohmann_transfer_results_page_html(
+        response = await vibe.generate_hohmann_transfer_results_page_html(
             style="Make it look like the Apple homepage",
             initial_orbit_radius=initial_orbit_radius,
             final_orbit_radius=final_orbit_radius,
@@ -215,6 +211,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 <p align="center">
-  Built with ❤️ by the VibeKit Team
+  Built with ❤️ by <a href="https://www.lorenzoswank.com">Lorenzo</a>
 </p>
 
