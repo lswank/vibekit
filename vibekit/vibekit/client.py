@@ -24,21 +24,29 @@ class VibeKitClient:
         api_key: str,
         timeout: float = 30.0,
         retries: int = 3,
-        debug: bool = False
+        debug: bool = False,
+        base_url: Optional[str] = None,
+        model: Optional[str] = None
     ):
         """
         Initialize the VibeKit client.
         
         Args:
-            api_key: API key for OpenAI or Anthropic (required)
+            api_key: API key for the LLM service (required). Use your OpenAI or Anthropic API key,
+                     or provide a valid custom API key if using a custom endpoint.
             timeout: Request timeout in seconds (optional, defaults to 30.0)
             retries: Number of retry attempts (optional, defaults to 3)
             debug: Enable debug logging (optional, defaults to False)
+            base_url: Optional custom endpoint URL for the LLM service. If provided, it should follow
+                      the OpenAI API URL scheme (e.g., "https://api.openai.com/v1") for proper integration.
+            model: Optional model name to use for the LLM provider (e.g., "davinci" or "llama")
         """
         self.api_key = api_key
         self.timeout = timeout
         self.retries = retries
         self.debug = debug
+        self.base_url = base_url
+        self.model = model
         self._interpreter = None
         self._connected = False
         
@@ -59,15 +67,17 @@ class VibeKitClient:
         """
         logger.info("Initializing VibeKit...")
         
-        # Determine which LLM provider to use based on API key format
-        provider = self._detect_provider(self.api_key)
+        # Determine which LLM provider to use based on API key format. if endpoint is provided, use custom provider.
+        provider = "custom" if self.base_url else self._detect_provider(self.api_key)
         
         # Initialize the function interpreter
         self._interpreter = FunctionInterpreter(
             api_key=self.api_key,
             provider=provider,
             timeout=self.timeout,
-            retries=self.retries
+            retries=self.retries,
+            base_url=self.base_url,
+            model=self.model,
         )
         
         # Test the connection

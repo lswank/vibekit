@@ -25,7 +25,9 @@ class FunctionInterpreter:
         api_key: str,
         provider: str,
         timeout: float,
-        retries: int
+        retries: int,
+        base_url: Optional[str] = None,
+        model: Optional[str] = None
     ):
         """
         Initialize the function interpreter.
@@ -35,11 +37,15 @@ class FunctionInterpreter:
             provider: Provider name ("openai" or "anthropic")
             timeout: Request timeout in seconds
             retries: Number of retry attempts
+            base_url: Optional custom endpoint URL to use instead of the default API endpoints
+            model: Optional model name to use for the language model
         """
         self.api_key = api_key
         self.provider = provider
         self.timeout = timeout
         self.retries = retries
+        self.base_url = base_url
+        self.custom_model = model
         self.model = self._get_default_model()
         
         # Initialize provider-specific client
@@ -53,11 +59,21 @@ class FunctionInterpreter:
         
         Returns:
             Default model name
+
+        If a model is passed (via the model parameter), it will be used for any provider.
+        Otherwise, default models are chosen based on the provider.
         """
+        if self.custom_model is not None:
+            return self.custom_model
+        
         if self.provider == "openai":
             return "gpt-4o-mini"
         elif self.provider == "anthropic":
             return "claude-3-7-sonnet"
+        elif self.provider == "custom":
+            if self.custom_model is None:
+                raise ValueError("Custom provider requires model")
+            return self.custom_model
         else:
             raise ValueError(f"Unsupported provider: {self.provider}")
     
@@ -89,7 +105,16 @@ class FunctionInterpreter:
                 raise ImportError("Anthropic package is required. Install with: pip install anthropic")
             except Exception as e:
                 raise RuntimeError(f"Failed to initialize Anthropic client: {e}")
-        
+        elif self.provider == "custom":
+            try:
+                import openai
+                client = openai.AsyncClient(base_url=self.base_url, api_key=self.api_key)
+                logger.debug("OpenAI client initialized with custom base URL: %s", self.base_url)
+                return client
+            except ImportError:
+                raise ImportError("OpenAI package is required. Install with: pip install openai")
+            except Exception as e:
+                raise RuntimeError(f"Failed to initialize OpenAI client: {e}")
         else:
             raise ValueError(f"Unsupported provider: {self.provider}")
     
@@ -101,10 +126,10 @@ class FunctionInterpreter:
             True if the connection is successful, False otherwise
         """
         try:
-            if self.provider == "openai":
+            if self.provider == "openai" or self.provider == "custom":
                 # Test OpenAI connection with a simple completion
                 response = await self._client.chat.completions.create(
-                    model="gpt-4o-mini",
+                    model=self.model,
                     messages=[{"role": "user", "content": "Hello"}],
                     max_tokens=5
                 )
@@ -113,7 +138,7 @@ class FunctionInterpreter:
             elif self.provider == "anthropic":
                 # Test Anthropic connection with a simple completion
                 response = await self._client.messages.create(
-                    model="claude-3-7-sonnet",
+                    model=self.model,
                     max_tokens=5,
                     messages=[{"role": "user", "content": "Hello"}]
                 )
@@ -140,6 +165,8 @@ class FunctionInterpreter:
         
         # Reinitialize client if provider or API key changed
         if "provider" in options or "api_key" in options:
+            if "model" in options:
+                self.passed_model = options["model"]
             if "provider" in options:
                 self.model = self._get_default_model()
             self._client = self._initialize_client()
@@ -220,7 +247,7 @@ class FunctionInterpreter:
         """
         for attempt in range(self.retries + 1):
             try:
-                if self.provider == "openai":
+                if self.provider == "openai" or self.provider == "custom":
                     return await self._execute_with_openai(function_description)
                 elif self.provider == "anthropic":
                     return await self._execute_with_anthropic(function_description)
